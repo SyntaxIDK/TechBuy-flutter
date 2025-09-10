@@ -1,0 +1,219 @@
+{
+  "categories": [
+    {
+      "id": "macbooks",
+      "name": "MacBooks",
+      "icon": "laptop_mac",
+      "products": [
+        {
+          "id": "mbp14-m3",
+          "name": "MacBook Pro 14-inch M3",
+          "brand": "Apple",
+          "price": 1999.00,
+          "originalPrice": 2199.00,
+          "image": "assets/images/macbook_pro_14_m3.jpg",
+          "rating": 4.8,
+          "reviews": 256,
+          "description": "The 14-inch MacBook Pro with M3 chip delivers exceptional performance for professionals. Features a stunning Liquid Retina XDR display, all-day battery life, and advanced connectivity.",
+          "specifications": {
+            "processor": "Apple M3 8-core CPU",
+            "memory": "16GB unified memory",
+            "storage": "512GB SSD",
+            "display": "14.2-inch Liquid Retina XDR",
+            "graphics": "10-core GPU",
+            "battery": "Up to 18 hours",
+            "weight": "1.55 kg"
+          },
+          "colors": ["Space Gray", "Silver"],
+          "inStock": true,
+          "featured": true
+        },
+        {
+          "id": "mba15-m3",
+          "name": "MacBook Air 15-inch M3",
+          "brand": "Apple",
+          "price": 1299.00,
+          "originalPrice": 1399.00,
+          "image": "assets/images/macbook_air_15_m3.jpg",
+          "rating": 4.7,
+          "reviews": 189,
+          "description": "The 15-inch MacBook Air with M3 chip combines portability with power. Perfect for everyday tasks, creative work, and everything in between.",
+          "specifications": {
+            "processor": "Apple M3 8-core CPU",
+            "memory": "8GB unified memory",
+            "storage": "256GB SSD",
+            "display": "15.3-inch Liquid Retina",
+            "graphics": "10-core GPU",
+            "battery": "Up to 18 hours",
+            "weight": "1.51 kg"
+          },
+          "colors": ["Midnight", "Starlight", "Space Gray", "Silver"],
+          "inStock": true,
+          "featured": false
+        }
+      ]
+    },
+    {
+      "id": "iphones",
+      "name": "iPhones",
+      "icon": "phone_iphone",
+      "products": [
+        {
+          "id": "iphone15-pro",
+          "name": "iPhone 15 Pro",
+          "brand": "Apple",
+          "price": 999.00,
+          "originalPrice": 1099.00,
+          "image": "assets/images/iphone_15_pro.jpg",
+          "rating": 4.9,
+          "reviews": 432,
+          "description": "iPhone 15 Pro features a titanium design, A17 Pro chip, and advanced camera system. Experience the ultimate iPhone with cutting-edge technology.",
+          "specifications": {
+            "processor": "A17 Pro chip",
+            "storage": "128GB",
+            "display": "6.1-inch Super Retina XDR",
+            "camera": "48MP Main + 12MP Ultra Wide + 12MP Telephoto",
+            "battery": "Up to 23 hours video playback",
+            "weight": "187g",
+            "connectivity": "5G, Wi-Fi 6E, Bluetooth 5.3"
+          },
+          "colors": ["Natural Titanium", "Blue Titanium", "White Titanium", "Black Titanium"],
+          "inStock": true,
+          "featured": true
+        },
+        {
+          "id": "iphone15",
+          "name": "iPhone 15",
+          "brand": "Apple",
+          "price": 799.00,
+          "originalPrice": 899.00,
+          "image": "assets/images/iphone_15.jpg",
+          "rating": 4.6,
+          "reviews": 298,
+          "description": "iPhone 15 brings Dynamic Island, USB-C, and a 48MP camera to everyone. Available in vibrant colors with all-day battery life.",
+          "specifications": {
+            "processor": "A16 Bionic chip",
+            "storage": "128GB",
+            "display": "6.1-inch Super Retina XDR",
+            "camera": "48MP Main + 12MP Ultra Wide",
+            "battery": "Up to 20 hours video playback",
+            "weight": "171g",
+            "connectivity": "5G, Wi-Fi 6, Bluetooth 5.3"
+          },
+          "colors": ["Pink", "Yellow", "Green", "Blue", "Black"],
+          "inStock": true,
+          "featured": false
+        }
+      ]
+    },
+    {
+      "id": "android",
+      "name": "Android Phones",
+      "icon": "smartphone",
+      "products": [
+        {
+          "id": "pixel8-pro",
+          "name": "Google Pixel 8 Pro",
+          "brand": "Google",
+          "price": 899.00,
+          "originalPrice": 999.00,
+          "image": "assets/images/pixel_8_pro.jpg",
+          "rating": 4.5,
+          "reviews": 167,
+          "description": "Google Pixel 8 Pro powered by Google Tensor G3 chip. Features advanced AI capabilities, exceptional camera system, and pure Android experience.",
+          "specifications": {
+            "processor": "Google Tensor G3",
+            "memory": "12GB RAM",
+            "storage": "128GB",
+            "display": "6.7-inch LTPO OLED 120Hz",
+            "camera": "50MP Main + 48MP Ultra Wide + 48MP Telephoto",
+            "battery": "5050mAh with 30W fast charging",
+            "weight": "213g",
+            "connectivity": "5G, Wi-Fi 7, Bluetooth 5.3"
+          },
+          "colors": ["Obsidian", "Porcelain", "Bay"],
+          "inStock": true,
+          "featured": true
+        },
+        {
+          "id": "s24-ultra",
+          "name": "Samsung Galaxy S24 Ultra",
+          "brand": "Samsung",
+          "price": 1199.00,
+          "originalPrice": 1299.00,
+          "image": "assets/images/galaxy_s24_ultra.jpg",
+          "rating": 4.7,
+          "reviews": 324,
+          "description": "Samsung Galaxy S24 Ultra with built-in S Pen, 200MP camera, and AI-powered features. The ultimate Android flagship experience.",
+          "specifications": {
+            "processor": "Snapdragon 8 Gen 3",
+            "memory": "12GB RAM",
+            "storage": "256GB",
+            "display": "6.8-inch Dynamic AMOLED 2X 120Hz",
+            "camera": "200MP Main + 50MP Telephoto + 10MP Telephoto + 12MP Ultra Wide",
+            "battery": "5000mAh with 45W fast charging",
+            "weight": "232g",
+            "connectivity": "5G, Wi-Fi 7, Bluetooth 5.3"
+          },
+          "colors": ["Titanium Black", "Titanium Gray", "Titanium Violet", "Titanium Yellow"],
+          "inStock": true,
+          "featured": false
+        }
+      ]
+    },
+    {
+      "id": "laptops",
+      "name": "Laptops",
+      "icon": "laptop",
+      "products": [
+        {
+          "id": "surface-laptop-5",
+          "name": "Microsoft Surface Laptop 5",
+          "brand": "Microsoft",
+          "price": 1299.00,
+          "originalPrice": 1499.00,
+          "image": "assets/images/surface_laptop_5.jpg",
+          "rating": 4.4,
+          "reviews": 143,
+          "description": "Microsoft Surface Laptop 5 combines style, speed, and all-day battery life. Perfect for productivity and creative work with Windows 11.",
+          "specifications": {
+            "processor": "12th Gen Intel Core i5",
+            "memory": "16GB RAM",
+            "storage": "512GB SSD",
+            "display": "13.5-inch PixelSense touchscreen",
+            "graphics": "Intel Iris Xe Graphics",
+            "battery": "Up to 18 hours",
+            "weight": "1.27 kg"
+          },
+          "colors": ["Platinum", "Matte Black", "Sage", "Sandstone"],
+          "inStock": true,
+          "featured": false
+        },
+        {
+          "id": "xps-13",
+          "name": "Dell XPS 13",
+          "brand": "Dell",
+          "price": 1099.00,
+          "originalPrice": 1199.00,
+          "image": "assets/images/dell_xps_13.jpg",
+          "rating": 4.6,
+          "reviews": 201,
+          "description": "Dell XPS 13 with InfinityEdge display and premium build quality. Compact design with powerful performance for professionals.",
+          "specifications": {
+            "processor": "13th Gen Intel Core i7",
+            "memory": "16GB RAM",
+            "storage": "512GB SSD",
+            "display": "13.4-inch FHD+ InfinityEdge",
+            "graphics": "Intel Iris Xe Graphics",
+            "battery": "Up to 12 hours",
+            "weight": "1.23 kg"
+          },
+          "colors": ["Platinum Silver", "Graphite"],
+          "inStock": true,
+          "featured": true
+        }
+      ]
+    }
+  ]
+}
+
