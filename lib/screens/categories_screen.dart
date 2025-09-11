@@ -123,11 +123,23 @@ class ProductGridCard extends StatelessWidget {
                 ),
                 child: Stack(
                   children: [
-                    Center(
-                      child: Icon(
-                        _getProductIcon(product.name),
-                        size: 60,
-                        color: Colors.grey[400],
+                    ClipRRect(
+                      borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                      child: Image.asset(
+                        product.image,
+                        width: double.infinity,
+                        height: double.infinity,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          // Fallback to icon if image fails to load
+                          return Center(
+                            child: Icon(
+                              _getProductIcon(product.name),
+                              size: 60,
+                              color: Colors.grey[400],
+                            ),
+                          );
+                        },
                       ),
                     ),
                     if (product.hasDiscount)

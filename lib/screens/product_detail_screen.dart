@@ -54,10 +54,39 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               height: 300,
               width: double.infinity,
               color: Colors.grey[100],
-              child: Icon(
-                _getProductIcon(widget.product.name),
-                size: 120,
-                color: Colors.grey[400],
+              child: Image.asset(
+                widget.product.image,
+                width: double.infinity,
+                height: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  // Print debug info for failed images
+                  print('Failed to load image: ${widget.product.image}');
+                  print('Error: $error');
+
+                  // Fallback to icon if image fails to load
+                  return Container(
+                    color: Colors.grey[200],
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          _getProductIcon(widget.product.name),
+                          size: 80,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Image not available',
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
               ),
             ),
 

@@ -240,10 +240,22 @@ class ProductCard extends StatelessWidget {
                     color: Colors.grey[100],
                     borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
                   ),
-                  child: Icon(
-                    _getProductIcon(product.name),
-                    size: isGrid ? 60 : 80,
-                    color: Colors.grey[400],
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                    child: Image.asset(
+                      product.image,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) {
+                        // Fallback to icon if image fails to load
+                        return Center(
+                          child: Icon(
+                            _getProductIcon(product.name),
+                            size: isGrid ? 60 : 80,
+                            color: Colors.grey[400],
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
