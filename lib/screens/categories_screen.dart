@@ -114,7 +114,7 @@ class ProductGridCard extends StatelessWidget {
           children: [
             // Product Image
             Expanded(
-              flex: 3,
+              flex: 2, // Reduced from 3 to 2 to give more space to content
               child: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
@@ -185,69 +185,86 @@ class ProductGridCard extends StatelessWidget {
               ),
             ),
             Expanded(
-              flex: 2,
+              flex: 3, // Increased from 2 to 3 to give more space to content
               child: Padding(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(6), // Further reduced from 8 to 6
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min, // Add this to minimize space usage
                   children: [
-                    Text(
-                      product.name,
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.w600,
+                    Flexible( // Changed from Text to Flexible
+                      child: Text(
+                        product.name,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12, // Reduced font size
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 1), // Reduced from 2 to 1
                     Text(
                       product.brand,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Colors.grey[600],
+                        fontSize: 10, // Reduced font size
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     const Spacer(),
-                    Row(
-                      children: [
-                        Text(
-                          '\$${product.price.toStringAsFixed(0)}',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                        if (product.hasDiscount) ...[
-                          const SizedBox(width: 4),
-                          Expanded(
+                    // Price row
+                    Flexible( // Changed from Row to Flexible Row
+                      child: Row(
+                        children: [
+                          Flexible( // Made price text flexible
                             child: Text(
-                              '\$${product.originalPrice?.toStringAsFixed(0)}',
+                              '\$${product.price.toStringAsFixed(0)}',
+                              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                                fontSize: 12, // Reduced font size
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (product.hasDiscount) ...[
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                '\$${product.originalPrice?.toStringAsFixed(0)}',
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  decoration: TextDecoration.lineThrough,
+                                  color: Colors.grey[600],
+                                  fontSize: 10, // Reduced font size
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 1), // Reduced from 2 to 1
+                    // Rating row
+                    Flexible( // Changed from Row to Flexible Row
+                      child: Row(
+                        children: [
+                          Icon(Icons.star, color: Colors.amber, size: 12), // Reduced size
+                          const SizedBox(width: 1), // Reduced spacing
+                          Flexible( // Made rating flexible
+                            child: Text(
+                              '${product.rating} (${product.reviews})',
                               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                decoration: TextDecoration.lineThrough,
+                                fontSize: 10, // Reduced font size
                                 color: Colors.grey[600],
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Row(
-                      children: [
-                        Icon(Icons.star, color: Colors.amber, size: 14),
-                        const SizedBox(width: 2),
-                        Text(
-                          '${product.rating}',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          '(${product.reviews})',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ],
                 ),

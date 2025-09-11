@@ -270,20 +270,26 @@ class ProductCard extends StatelessWidget {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Text(
-                          '\$${product.price.toStringAsFixed(0)}',
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).colorScheme.primary,
+                        Flexible( // Made price text flexible
+                          child: Text(
+                            '\$${product.price.toStringAsFixed(0)}',
+                            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                         if (product.hasDiscount) ...[
-                          const SizedBox(width: 8),
-                          Text(
-                            '\$${product.originalPrice?.toStringAsFixed(0)}',
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              decoration: TextDecoration.lineThrough,
-                              color: Colors.grey[600],
+                          const SizedBox(width: 4), // Reduced from 8 to 4
+                          Expanded( // Changed to Expanded for better space usage
+                            child: Text(
+                              '\$${product.originalPrice?.toStringAsFixed(0)}',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                decoration: TextDecoration.lineThrough,
+                                color: Colors.grey[600],
+                              ),
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
