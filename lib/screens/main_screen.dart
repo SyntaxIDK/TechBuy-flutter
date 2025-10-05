@@ -7,6 +7,7 @@ import 'categories_screen.dart';
 import 'favorites_screen.dart';
 import 'cart_screen.dart';
 import 'profile_screen.dart';
+import 'data_source_demo_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -24,6 +25,7 @@ class _MainScreenState extends State<MainScreen> {
     const FavoritesScreen(),
     const CartScreen(),
     const ProfileScreen(),
+    const DataSourceDemoScreen(), // Add the new screen here
   ];
 
   @override
@@ -78,6 +80,18 @@ class _MainScreenState extends State<MainScreen> {
             label: 'Profile',
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const DataSourceDemoScreen(),
+            ),
+          );
+        },
+        tooltip: 'Data Source Demo',
+        child: const Icon(Icons.cloud_sync),
       ),
     );
   }

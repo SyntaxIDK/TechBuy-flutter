@@ -1,0 +1,93 @@
+{
+  "categories": [
+    {
+      "id": "tablets",
+      "name": "Tablets",
+      "icon": "tablet_mac",
+      "products": [
+        {
+          "id": "ipad-pro-12",
+          "name": "iPad Pro 12.9-inch M4",
+          "brand": "Apple",
+          "price": 1299.00,
+          "originalPrice": 1399.00,
+          "image": "assets/images/ipad_pro_12_m4.jpg",
+          "rating": 4.9,
+          "reviews": 324,
+          "description": "The most advanced iPad Pro ever with M4 chip. Features Ultra Retina XDR display with nanotexture glass option and all-day battery life.",
+          "specifications": {
+            "processor": "Apple M4 chip",
+            "memory": "8GB RAM",
+            "storage": "256GB",
+            "display": "12.9-inch Ultra Retina XDR",
+            "connectivity": "Wi-Fi 6E + 5G",
+            "battery": "Up to 10 hours",
+            "weight": "682 grams"
+          },
+          "colors": ["Space Black", "Silver"],
+          "inStock": true,
+          "featured": true,
+          "isOnlineOnly": true
+        },
+        {
+          "id": "surface-pro-10",
+          "name": "Microsoft Surface Pro 10",
+          "brand": "Microsoft",
+          "price": 999.00,
+          "originalPrice": 1099.00,
+          "image": "assets/images/surface_pro_10.jpg",
+          "rating": 4.6,
+          "reviews": 156,
+          "description": "Versatile 2-in-1 laptop with Intel Core processors. Perfect for work, creativity, and entertainment on the go.",
+          "specifications": {
+            "processor": "Intel Core i5-1335U",
+            "memory": "8GB RAM",
+            "storage": "256GB SSD",
+            "display": "13-inch PixelSense",
+            "connectivity": "Wi-Fi 6E + 5G",
+            "battery": "Up to 15.5 hours",
+            "weight": "879 grams"
+          },
+          "colors": ["Platinum", "Graphite"],
+          "inStock": true,
+          "featured": false,
+          "isOnlineOnly": true
+        }
+      ]
+    },
+    {
+      "id": "accessories",
+      "name": "Accessories",
+      "icon": "headset",
+      "products": [
+        {
+          "id": "airpods-pro-2",
+          "name": "AirPods Pro (2nd generation)",
+          "brand": "Apple",
+          "price": 249.00,
+          "originalPrice": 279.00,
+          "image": "assets/images/airpods_pro_2.jpg",
+          "rating": 4.8,
+          "reviews": 892,
+          "description": "Immersive sound with Adaptive Audio. Active Noise Cancellation and Transparency mode. All-day battery life.",
+          "specifications": {
+            "driver": "Custom high-excursion",
+            "chipset": "H2 chip",
+            "battery": "Up to 6 hours listening",
+            "charging": "MagSafe + Lightning",
+            "features": "Spatial Audio, ANC",
+            "resistance": "IPX4 sweat resistant",
+            "weight": "5.3 grams each"
+          },
+          "colors": ["White"],
+          "inStock": true,
+          "featured": true,
+          "isOnlineOnly": true
+        }
+      ]
+    }
+  ],
+  "lastUpdated": "2024-10-05T10:30:00Z",
+  "source": "online"
+}
+
