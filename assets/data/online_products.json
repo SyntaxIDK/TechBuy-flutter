@@ -6,51 +6,123 @@
       "icon": "tablet_mac",
       "products": [
         {
-          "id": "ipad-pro-12",
-          "name": "iPad Pro 12.9-inch M4",
+          "id": "ipad-air-m2",
+          "name": "iPad Air 11-inch M2",
           "brand": "Apple",
-          "price": 1299.00,
-          "originalPrice": 1399.00,
-          "image": "assets/images/ipad_pro_12_m4.jpg",
-          "rating": 4.9,
-          "reviews": 324,
-          "description": "The most advanced iPad Pro ever with M4 chip. Features Ultra Retina XDR display with nanotexture glass option and all-day battery life.",
+          "price": 899.0,
+          "originalPrice": 999.0,
+          "image": "assets/images/ipad_air_11_m2.jpg",
+          "rating": 4.7,
+          "reviews": 489,
+          "description": "The new iPad Air with M2 chip brings incredible performance to the most popular iPad. Features a gorgeous 11-inch Liquid Retina display and all-day battery life.",
           "specifications": {
-            "processor": "Apple M4 chip",
+            "processor": "Apple M2 chip",
             "memory": "8GB RAM",
-            "storage": "256GB",
-            "display": "12.9-inch Ultra Retina XDR",
-            "connectivity": "Wi-Fi 6E + 5G",
+            "storage": "128GB",
+            "display": "11-inch Liquid Retina",
+            "connectivity": "Wi-Fi 6E",
             "battery": "Up to 10 hours",
-            "weight": "682 grams"
+            "weight": "462 grams"
           },
-          "colors": ["Space Black", "Silver"],
+          "colors": [
+            "Blue",
+            "Purple",
+            "Pink",
+            "Starlight",
+            "Space Gray"
+          ],
           "inStock": true,
           "featured": true,
           "isOnlineOnly": true
         },
         {
-          "id": "surface-pro-10",
-          "name": "Microsoft Surface Pro 10",
+          "id": "surface-pro-9",
+          "name": "Microsoft Surface Pro 9",
           "brand": "Microsoft",
-          "price": 999.00,
-          "originalPrice": 1099.00,
-          "image": "assets/images/surface_pro_10.jpg",
-          "rating": 4.6,
-          "reviews": 156,
-          "description": "Versatile 2-in-1 laptop with Intel Core processors. Perfect for work, creativity, and entertainment on the go.",
+          "price": 1199.0,
+          "originalPrice": 1299.0,
+          "image": "assets/images/surface_pro_9.jpg",
+          "rating": 4.5,
+          "reviews": 267,
+          "description": "The most versatile 2-in-1 laptop with Intel 12th Gen processors. Perfect for work, creativity, and entertainment with the flexibility of a tablet.",
           "specifications": {
-            "processor": "Intel Core i5-1335U",
-            "memory": "8GB RAM",
+            "processor": "Intel Core i5-1235U",
+            "memory": "8GB LPDDR5",
             "storage": "256GB SSD",
-            "display": "13-inch PixelSense",
-            "connectivity": "Wi-Fi 6E + 5G",
+            "display": "13-inch PixelSense Flow",
+            "connectivity": "Wi-Fi 6E + 5G optional",
             "battery": "Up to 15.5 hours",
             "weight": "879 grams"
           },
-          "colors": ["Platinum", "Graphite"],
+          "colors": [
+            "Platinum",
+            "Graphite",
+            "Sapphire",
+            "Forest"
+          ],
           "inStock": true,
           "featured": false,
+          "isOnlineOnly": true
+        }
+      ]
+    },
+    {
+      "id": "gaming-laptops",
+      "name": "Gaming Laptops",
+      "icon": "sports_esports",
+      "products": [
+        {
+          "id": "asus-rog-strix",
+          "name": "ASUS ROG Strix G16",
+          "brand": "ASUS",
+          "price": 1799.0,
+          "originalPrice": 1999.0,
+          "image": "assets/images/asus_rog_strix_g16.jpg",
+          "rating": 4.6,
+          "reviews": 342,
+          "description": "High-performance gaming laptop with latest Intel processors and NVIDIA RTX graphics. Features a fast 165Hz display and advanced cooling system.",
+          "specifications": {
+            "processor": "Intel Core i7-13650HX",
+            "memory": "16GB DDR5",
+            "storage": "1TB PCIe SSD",
+            "display": "16-inch FHD 165Hz",
+            "graphics": "NVIDIA RTX 4060 8GB",
+            "battery": "Up to 8 hours",
+            "weight": "2.5 kg"
+          },
+          "colors": [
+            "Eclipse Gray",
+            "Volt Green"
+          ],
+          "inStock": true,
+          "featured": true,
+          "isOnlineOnly": true
+        },
+        {
+          "id": "alienware-m15",
+          "name": "Alienware m15 R7",
+          "brand": "Dell",
+          "price": 2299.0,
+          "originalPrice": 2599.0,
+          "image": "assets/images/alienware_m15_r7.jpg",
+          "rating": 4.8,
+          "reviews": 198,
+          "description": "Premium gaming laptop with iconic Alienware design. Features advanced thermal technology and customizable RGB lighting for the ultimate gaming experience.",
+          "specifications": {
+            "processor": "AMD Ryzen 9 6900HX",
+            "memory": "32GB DDR5",
+            "storage": "1TB NVMe SSD",
+            "display": "15.6-inch QHD 240Hz",
+            "graphics": "NVIDIA RTX 4070 8GB",
+            "battery": "Up to 6 hours",
+            "weight": "2.69 kg"
+          },
+          "colors": [
+            "Lunar Light",
+            "Dark Side of the Moon"
+          ],
+          "inStock": true,
+          "featured": true,
           "isOnlineOnly": true
         }
       ]
@@ -61,33 +133,122 @@
       "icon": "headset",
       "products": [
         {
-          "id": "airpods-pro-2",
-          "name": "AirPods Pro (2nd generation)",
-          "brand": "Apple",
-          "price": 249.00,
-          "originalPrice": 279.00,
-          "image": "assets/images/airpods_pro_2.jpg",
-          "rating": 4.8,
-          "reviews": 892,
-          "description": "Immersive sound with Adaptive Audio. Active Noise Cancellation and Transparency mode. All-day battery life.",
+          "id": "sony-wh1000xm5",
+          "name": "Sony WH-1000XM5",
+          "brand": "Sony",
+          "price": 349.0,
+          "originalPrice": 399.0,
+          "image": "assets/images/sony_wh1000xm5.jpg",
+          "rating": 4.9,
+          "reviews": 1247,
+          "description": "Industry-leading noise canceling headphones with exceptional sound quality. Features 30-hour battery life and multipoint connection.",
           "specifications": {
-            "driver": "Custom high-excursion",
-            "chipset": "H2 chip",
-            "battery": "Up to 6 hours listening",
-            "charging": "MagSafe + Lightning",
-            "features": "Spatial Audio, ANC",
-            "resistance": "IPX4 sweat resistant",
-            "weight": "5.3 grams each"
+            "driver": "30mm drivers",
+            "frequency": "4Hz-40kHz",
+            "battery": "Up to 30 hours",
+            "charging": "USB-C quick charge",
+            "features": "Active Noise Canceling",
+            "weight": "250 grams",
+            "connectivity": "Bluetooth 5.2, NFC"
           },
-          "colors": ["White"],
+          "colors": [
+            "Black",
+            "Silver"
+          ],
           "inStock": true,
           "featured": true,
+          "isOnlineOnly": true
+        },
+        {
+          "id": "logitech-mx-master-3s",
+          "name": "Logitech MX Master 3S",
+          "brand": "Logitech",
+          "price": 99.0,
+          "originalPrice": 119.0,
+          "image": "assets/images/logitech_mx_master_3s.jpg",
+          "rating": 4.8,
+          "reviews": 892,
+          "description": "Advanced wireless mouse designed for creatives and professionals. Features precision tracking, customizable buttons, and multi-device connectivity.",
+          "specifications": {
+            "sensor": "Darkfield high precision",
+            "dpi": "200-8000 DPI",
+            "battery": "Up to 70 days",
+            "charging": "USB-C fast charge",
+            "connectivity": "Bluetooth, USB receiver",
+            "weight": "141 grams",
+            "compatibility": "Windows, Mac, Linux"
+          },
+          "colors": [
+            "Graphite",
+            "Pale Gray",
+            "Rose"
+          ],
+          "inStock": true,
+          "featured": false,
+          "isOnlineOnly": true
+        }
+      ]
+    },
+    {
+      "id": "monitors",
+      "name": "Monitors",
+      "icon": "monitor",
+      "products": [
+        {
+          "id": "lg-ultragear-27",
+          "name": "LG UltraGear 27GN950-B",
+          "brand": "LG",
+          "price": 649.0,
+          "originalPrice": 799.0,
+          "image": "assets/images/lg_ultragear_27gn950.jpg",
+          "rating": 4.7,
+          "reviews": 456,
+          "description": "27-inch 4K gaming monitor with 144Hz refresh rate and NVIDIA G-SYNC compatibility. Perfect for gaming and professional work with stunning color accuracy.",
+          "specifications": {
+            "size": "27-inch",
+            "resolution": "3840 x 2160 (4K UHD)",
+            "refresh_rate": "144Hz",
+            "panel": "Nano IPS",
+            "response_time": "1ms GTG",
+            "connectivity": "HDMI 2.1, DisplayPort 1.4",
+            "features": "G-SYNC Compatible, HDR600"
+          },
+          "colors": [
+            "Black"
+          ],
+          "inStock": true,
+          "featured": true,
+          "isOnlineOnly": true
+        },
+        {
+          "id": "samsung-odyssey-g7",
+          "name": "Samsung Odyssey G7 32\"",
+          "brand": "Samsung",
+          "price": 549.0,
+          "originalPrice": 699.0,
+          "image": "assets/images/samsung_odyssey_g7_32.jpg",
+          "rating": 4.6,
+          "reviews": 234,
+          "description": "Immersive 32-inch curved gaming monitor with 240Hz refresh rate. Features QLED technology and 1000R curvature for the ultimate gaming experience.",
+          "specifications": {
+            "size": "32-inch",
+            "resolution": "2560 x 1440 (QHD)",
+            "refresh_rate": "240Hz",
+            "panel": "VA QLED",
+            "response_time": "1ms GTG",
+            "curvature": "1000R",
+            "features": "G-SYNC Compatible, HDR600"
+          },
+          "colors": [
+            "Black"
+          ],
+          "inStock": true,
+          "featured": false,
           "isOnlineOnly": true
         }
       ]
     }
   ],
-  "lastUpdated": "2024-10-05T10:30:00Z",
+  "lastUpdated": "2024-10-05T15:30:00Z",
   "source": "online"
 }
-

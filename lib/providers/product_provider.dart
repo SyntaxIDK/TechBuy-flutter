@@ -14,12 +14,11 @@ class ProductProvider with ChangeNotifier {
   bool _hasInternetConnection = true;
   String _dataSource = 'local'; // 'local', 'online', or 'hybrid'
 
-  // For demonstration, we'll use a working JSON API endpoint
-  // You can replace this with your own GitHub raw URL once you set it up
+  // GitHub raw URL for your hosted online_products.json
   static const String _onlineDataUrl =
-      'https://jsonplaceholder.typicode.com/posts/1'; // This will work for testing
+      'https://raw.githubusercontent.com/SyntaxIDK/TechBuy-flutter/main/assets/data/online_products.json';
 
-  // Alternative: Use a working GitHub example (this is a real working URL for demo)
+  // Alternative demo URL (kept for reference)
   static const String _demoGitHubUrl =
       'https://raw.githubusercontent.com/flutter/samples/main/web/samples_index.json';
 
@@ -200,29 +199,11 @@ class ProductProvider with ChangeNotifier {
         throw Exception('No internet connection available');
       }
 
-      // For demonstration purposes, if no custom URL is provided,
-      // we'll load the online_products.json file to simulate online data
-      if (customUrl == null || customUrl.isEmpty) {
-        // Simulate online loading with the demo online_products.json
-        await Future.delayed(const Duration(seconds: 1)); // Simulate network delay
+      // Use the provided custom URL, or default to your GitHub hosted file
+      final url = customUrl ?? _onlineDataUrl;
 
-        final String response =
-            await rootBundle.loadString('assets/data/online_products.json');
-        final data = json.decode(response);
-
-        _categories = (data['categories'] as List)
-            .map((category) => models.Category.fromJson(category))
-            .toList();
-
-        _isLoading = false;
-        notifyListeners();
-        debugPrint('Loaded ${_categories.length} categories from simulated online source (online_products.json)');
-        return;
-      }
-
-      // If a custom URL is provided, try to fetch from the actual URL
       final response = await http.get(
-        Uri.parse(customUrl),
+        Uri.parse(url),
         headers: {'Accept': 'application/json'},
       ).timeout(const Duration(seconds: 10));
 
@@ -240,7 +221,7 @@ class ProductProvider with ChangeNotifier {
 
         _isLoading = false;
         notifyListeners();
-        debugPrint('Loaded ${_categories.length} categories from custom online URL');
+        debugPrint('Loaded ${_categories.length} categories from GitHub: $url');
       } else {
         throw Exception('Failed to load online data: HTTP ${response.statusCode}');
       }
@@ -365,4 +346,3 @@ class ProductProvider with ChangeNotifier {
     }
   }
 }
-
