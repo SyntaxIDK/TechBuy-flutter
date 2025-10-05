@@ -11,7 +11,7 @@
           "brand": "Apple",
           "price": 899.0,
           "originalPrice": 999.0,
-          "image": "assets/images/ipad_air_11_m2.jpg",
+          "image": "https://www.ubuy.com.lk/en/product/JG70XJ152-2024-apple-13-inch-ipad-air-m2-wi-fi-128gb-blue?srsltid=AfmBOoqFtCxyDlQ6pQ-482Hgmk0vImhrh77l4FT_z0uxDz9DSX_EY73M",
           "rating": 4.7,
           "reviews": 489,
           "description": "The new iPad Air with M2 chip brings incredible performance to the most popular iPad. Features a gorgeous 11-inch Liquid Retina display and all-day battery life.",
@@ -61,7 +61,7 @@
             "Forest"
           ],
           "inStock": true,
-          "featured": false,
+          "featured": true,
           "isOnlineOnly": true
         }
       ]
@@ -184,7 +184,7 @@
             "Rose"
           ],
           "inStock": true,
-          "featured": false,
+          "featured": true,
           "isOnlineOnly": true
         }
       ]
@@ -243,7 +243,7 @@
             "Black"
           ],
           "inStock": true,
-          "featured": false,
+          "featured": true,
           "isOnlineOnly": true
         }
       ]
