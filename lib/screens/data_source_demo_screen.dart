@@ -87,6 +87,24 @@ class _DataSourceDemoScreenState extends State<DataSourceDemoScreen> {
                             Text('Total Products: ${productProvider.allProducts.length}'),
                           ],
                         ),
+                        const SizedBox(height: 4),
+                        FutureBuilder<bool>(
+                          future: productProvider.checkApiAvailability(),
+                          builder: (context, snapshot) {
+                            return Row(
+                              children: [
+                                Icon(
+                                  Icons.api,
+                                  color: snapshot.data == true ? Colors.green : Colors.red,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'Laravel API: ${snapshot.data == true ? "Available" : "Unavailable"}',
+                                ),
+                              ],
+                            );
+                          },
+                        ),
                       ],
                     ),
                   ),
@@ -133,18 +151,47 @@ class _DataSourceDemoScreenState extends State<DataSourceDemoScreen> {
 
                         const SizedBox(height: 8),
 
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            onPressed: productProvider.isLoading
-                                ? null
-                                : () => productProvider.loadHybridProducts(),
-                            icon: const Icon(Icons.merge_type),
-                            label: const Text('Hybrid (Online + Local)'),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Theme.of(context).colorScheme.secondary,
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: productProvider.isLoading
+                                    ? null
+                                    : () async {
+                                        try {
+                                          await productProvider.loadApiProducts();
+                                        } catch (e) {
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text('Laravel API Error: $e'),
+                                              backgroundColor: Colors.red,
+                                              duration: const Duration(seconds: 5),
+                                            ),
+                                          );
+                                        }
+                                      },
+                                icon: const Icon(Icons.api),
+                                label: const Text('Laravel API'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.purple,
+                                  foregroundColor: Colors.white,
+                                ),
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: ElevatedButton.icon(
+                                onPressed: productProvider.isLoading
+                                    ? null
+                                    : () => productProvider.loadHybridProducts(),
+                                icon: const Icon(Icons.merge_type),
+                                label: const Text('Hybrid'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -224,6 +271,45 @@ class _DataSourceDemoScreenState extends State<DataSourceDemoScreen> {
                               ),
                             ),
                           ],
+                        ),
+
+                        const SizedBox(height: 8),
+
+                        // API Test Button
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () async {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Testing Laravel API connection...')),
+                              );
+
+                              try {
+                                final isHealthy = await productProvider.checkApiAvailability();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(isHealthy
+                                        ? 'Laravel API is working! ✅'
+                                        : 'Laravel API is not available ❌'),
+                                    backgroundColor: isHealthy ? Colors.green : Colors.red,
+                                  ),
+                                );
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('API Test Error: $e'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            },
+                            icon: const Icon(Icons.bug_report),
+                            label: const Text('Test Laravel API Connection'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
                         ),
                       ],
                     ),

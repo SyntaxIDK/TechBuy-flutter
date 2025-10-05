@@ -33,8 +33,15 @@ class _MainScreenState extends State<MainScreen> {
     super.initState();
     // Initialize providers
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProductProvider>().loadProducts();
+      // Don't automatically load products - let user choose data source
+      // context.read<ProductProvider>().loadProducts();
       context.read<DeviceCapabilitiesProvider>().initialize();
+
+      // Only load local products by default if no data source has been selected
+      final productProvider = context.read<ProductProvider>();
+      if (productProvider.categories.isEmpty) {
+        productProvider.loadLocalProducts();
+      }
     });
   }
 

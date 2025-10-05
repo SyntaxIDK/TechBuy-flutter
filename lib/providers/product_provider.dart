@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import '../models/product.dart' as models;
+import '../services/api_service.dart';
 
 class ProductProvider with ChangeNotifier {
   List<models.Category> _categories = [];
@@ -341,8 +342,187 @@ class ProductProvider with ChangeNotifier {
       case 'hybrid':
         await loadHybridProducts();
         break;
+      case 'api':
+        await loadApiProducts();
+        break;
       default:
         await loadProducts();
+    }
+  }
+
+  /// Load products from Laravel API
+  Future<void> loadApiProducts() async {
+    try {
+      _isLoading = true;
+      _dataSource = 'api';
+      notifyListeners();
+
+      debugPrint('Starting Laravel API product loading...');
+
+      // Check internet connection first
+      if (!await checkInternetConnection()) {
+        throw Exception('No internet connection available');
+      }
+
+      // Check if Laravel API is available
+      if (!await ApiService.checkApiHealth()) {
+        throw Exception('Laravel API is not available');
+      }
+
+      debugPrint('Laravel API health check passed, fetching data...');
+
+      // Fetch categories and products from Laravel API
+      final categoriesData = await ApiService.fetchCategories();
+      debugPrint('Fetched ${categoriesData.length} categories from Laravel API');
+
+      final productsData = await ApiService.fetchProducts(perPage: 50); // Get more products
+      debugPrint('Fetched products data: ${productsData['data']?.length ?? 0} products');
+
+      List<models.Category> apiCategories = [];
+
+      // Process categories from Laravel API
+      Map<String, List<models.Product>> categoryProducts = {};
+
+      // Convert Laravel products to our app's format
+      if (productsData['data'] != null) {
+        for (var productJson in productsData['data']) {
+          try {
+            final product = _convertLaravelProductToAppProduct(productJson);
+            final categorySlug = productJson['category']?['slug'] ?? 'uncategorized';
+
+            if (!categoryProducts.containsKey(categorySlug)) {
+              categoryProducts[categorySlug] = [];
+            }
+            categoryProducts[categorySlug]!.add(product);
+            debugPrint('Converted product: ${product.name} to category: $categorySlug');
+          } catch (e) {
+            debugPrint('Error converting product: $e');
+            debugPrint('Product data: $productJson');
+            // Continue with other products instead of failing completely
+            continue;
+          }
+        }
+      }
+
+      debugPrint('Processed ${categoryProducts.length} product categories');
+
+      // Create categories with their products
+      for (var categoryJson in categoriesData) {
+        final categorySlug = categoryJson['slug'];
+        final categoryName = categoryJson['name'];
+        final products = categoryProducts[categorySlug] ?? [];
+
+        // Include categories even if they have no products for debugging
+        apiCategories.add(models.Category(
+          id: 'api-${categoryJson['id']}',
+          name: 'API $categoryName',
+          icon: _getCategoryIcon(categorySlug),
+          products: products,
+        ));
+
+        debugPrint('Created category: $categoryName with ${products.length} products');
+      }
+
+      _categories = apiCategories;
+      _isLoading = false;
+      notifyListeners();
+      debugPrint('Successfully loaded ${_categories.length} categories from Laravel API');
+
+    } catch (e) {
+      debugPrint('Error loading API products: $e');
+      debugPrint('Stack trace: ${StackTrace.current}');
+
+      // Show error to user instead of silently falling back
+      _isLoading = false;
+      notifyListeners();
+
+      // Don't fallback automatically - let user know what happened
+      rethrow;
+    }
+  }
+
+  /// Convert Laravel API product format to our app's Product model
+  models.Product _convertLaravelProductToAppProduct(Map<String, dynamic> laravelProduct) {
+    // Extract images - Laravel returns array of image URLs
+    List<String> images = [];
+    if (laravelProduct['images'] != null) {
+      images = List<String>.from(laravelProduct['images']);
+    }
+
+    // Use first image or placeholder
+    String imageUrl = images.isNotEmpty
+        ? images.first
+        : 'assets/images/placeholder.jpg';
+
+    // Convert specifications from Laravel format
+    Map<String, dynamic> specs = {};
+    if (laravelProduct['specifications'] != null) {
+      specs = Map<String, dynamic>.from(laravelProduct['specifications']);
+    }
+
+    // Add additional specs from Laravel product data
+    specs.addAll({
+      'sku': laravelProduct['sku'] ?? 'N/A',
+      'stock': '${laravelProduct['stock_quantity'] ?? 0} units available',
+      'weight': laravelProduct['weight'] ?? 'N/A',
+      'dimensions': laravelProduct['dimensions'] ?? 'N/A',
+      'model': laravelProduct['model'] ?? 'N/A',
+    });
+
+    // Fix the type casting issues
+    final productId = laravelProduct['id'] ?? 0;
+    final reviewCount = 50 + (productId is int ? productId : (productId as num).toInt()) * 5;
+
+    return models.Product(
+      id: 'api-${laravelProduct['id']}',
+      name: laravelProduct['name'] ?? 'Unknown Product',
+      brand: laravelProduct['brand'] ?? 'Unknown Brand',
+      price: (laravelProduct['current_price'] ?? laravelProduct['price'] ?? 0).toDouble(),
+      originalPrice: (laravelProduct['price'] ?? 0).toDouble(),
+      image: imageUrl,
+      rating: 4.0 + (productId % 10) / 10, // Generate rating from ID
+      reviews: reviewCount, // Fixed type casting
+      description: laravelProduct['description'] ?? laravelProduct['short_description'] ?? 'No description available',
+      specifications: specs.map((key, value) => MapEntry(key, value.toString())), // Convert all values to String
+      colors: ['Black', 'White'], // Default colors since Laravel API might not have this
+      inStock: laravelProduct['in_stock'] ?? (laravelProduct['stock_quantity'] ?? 0) > 0,
+      featured: laravelProduct['is_on_sale'] ?? false, // Mark sale items as featured
+    );
+  }
+
+  /// Get appropriate icon for category based on slug
+  String _getCategoryIcon(String categorySlug) {
+    switch (categorySlug.toLowerCase()) {
+      case 'iphones':
+      case 'phones':
+      case 'smartphones':
+        return 'phone_iphone';
+      case 'macbooks':
+      case 'laptops':
+      case 'computers':
+        return 'laptop_mac';
+      case 'tablets':
+      case 'ipads':
+        return 'tablet_mac';
+      case 'accessories':
+      case 'headphones':
+        return 'headset';
+      case 'monitors':
+      case 'displays':
+        return 'monitor';
+      case 'gaming':
+        return 'sports_esports';
+      default:
+        return 'category';
+    }
+  }
+
+  /// Check if Laravel API is available
+  Future<bool> checkApiAvailability() async {
+    try {
+      return await ApiService.checkApiHealth();
+    } catch (e) {
+      return false;
     }
   }
 }
