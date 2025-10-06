@@ -27,6 +27,7 @@ class ProfileScreen extends StatelessWidget {
             // Profile Section
             Consumer<AuthProvider>(
               builder: (context, authProvider, child) {
+                final user = authProvider.currentUser;
                 return Card(
                   child: Padding(
                     padding: const EdgeInsets.all(16),
@@ -35,11 +36,21 @@ class ProfileScreen extends StatelessWidget {
                         CircleAvatar(
                           radius: 30,
                           backgroundColor: Theme.of(context).colorScheme.primary,
-                          child: const Icon(
-                            Icons.person,
-                            size: 30,
-                            color: Colors.white,
-                          ),
+                          backgroundImage: user?.profilePhotoUrl != null
+                              ? NetworkImage(user!.profilePhotoUrl)
+                              : null,
+                          child: user?.profilePhotoUrl == null
+                              ? Text(
+                                  user?.name.isNotEmpty == true
+                                      ? user!.name[0].toUpperCase()
+                                      : 'U',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              : null,
                         ),
                         const SizedBox(width: 16),
                         Expanded(
@@ -47,33 +58,113 @@ class ProfileScreen extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Welcome to TechBuy',
+                                user?.name ?? 'Welcome to TechBuy',
                                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
                               const SizedBox(height: 4),
                               Text(
-                                authProvider.currentUser ?? 'Demo User Account',
+                                user?.email ?? 'No email',
                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: Colors.grey[600],
                                 ),
                               ),
                               const SizedBox(height: 8),
-                              Text(
-                                'Logged in successfully',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.verified,
+                                    size: 16,
+                                    color: Theme.of(context).colorScheme.primary,
+                                  ),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Authenticated via Laravel API',
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context).colorScheme.primary,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.logout),
-                          onPressed: () => _showLogoutDialog(context),
-                          tooltip: 'Logout',
+                        PopupMenuButton<String>(
+                          onSelected: (value) {
+                            switch (value) {
+                              case 'edit_profile':
+                                _showEditProfileDialog(context);
+                                break;
+                              case 'change_password':
+                                _showChangePasswordDialog(context);
+                                break;
+                              case 'logout':
+                                _showLogoutDialog(context);
+                                break;
+                              case 'logout_all':
+                                _showLogoutAllDialog(context);
+                                break;
+                              case 'delete_account':
+                                _showDeleteAccountDialog(context);
+                                break;
+                            }
+                          },
+                          itemBuilder: (BuildContext context) => [
+                            const PopupMenuItem(
+                              value: 'edit_profile',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.edit),
+                                  SizedBox(width: 8),
+                                  Text('Edit Profile'),
+                                ],
+                              ),
+                            ),
+                            const PopupMenuItem(
+                              value: 'change_password',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.lock),
+                                  SizedBox(width: 8),
+                                  Text('Change Password'),
+                                ],
+                              ),
+                            ),
+                            const PopupMenuDivider(),
+                            const PopupMenuItem(
+                              value: 'logout',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.logout),
+                                  SizedBox(width: 8),
+                                  Text('Logout'),
+                                ],
+                              ),
+                            ),
+                            const PopupMenuItem(
+                              value: 'logout_all',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.logout),
+                                  SizedBox(width: 8),
+                                  Text('Logout All Devices'),
+                                ],
+                              ),
+                            ),
+                            const PopupMenuDivider(),
+                            const PopupMenuItem(
+                              value: 'delete_account',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.delete_forever, color: Colors.red),
+                                  SizedBox(width: 8),
+                                  Text('Delete Account', style: TextStyle(color: Colors.red)),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
@@ -408,6 +499,372 @@ class ProfileScreen extends StatelessWidget {
               Navigator.popUntil(context, (route) => route.isFirst);
             },
             child: const Text('Logout'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditProfileDialog(BuildContext context) {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final user = authProvider.currentUser;
+
+    final nameController = TextEditingController(text: user?.name ?? '');
+    final emailController = TextEditingController(text: user?.email ?? '');
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Profile'),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Full Name',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty) {
+                    return 'Please enter your name';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: emailController,
+                decoration: const InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(),
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your email';
+                  }
+                  if (!value.contains('@')) {
+                    return 'Please enter a valid email';
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              nameController.dispose();
+              emailController.dispose();
+              Navigator.pop(context);
+            },
+            child: const Text('Cancel'),
+          ),
+          Consumer<AuthProvider>(
+            builder: (context, authProvider, child) {
+              return TextButton(
+                onPressed: authProvider.isLoading
+                    ? null
+                    : () async {
+                        if (formKey.currentState!.validate()) {
+                          final success = await authProvider.updateProfile(
+                            nameController.text.trim(),
+                            emailController.text.trim(),
+                          );
+
+                          if (context.mounted) {
+                            if (success) {
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Profile updated successfully!'),
+                                  backgroundColor: Color(0xFF22C55E),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(authProvider.errorMessage ?? 'Update failed'),
+                                  backgroundColor: const Color(0xFFEF4444),
+                                ),
+                              );
+                            }
+                          }
+
+                          nameController.dispose();
+                          emailController.dispose();
+                        }
+                      },
+                child: authProvider.isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Update'),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showChangePasswordDialog(BuildContext context) {
+    final currentPasswordController = TextEditingController();
+    final newPasswordController = TextEditingController();
+    final confirmPasswordController = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Change Password'),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: currentPasswordController,
+                decoration: const InputDecoration(
+                  labelText: 'Current Password',
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter your current password';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: newPasswordController,
+                decoration: const InputDecoration(
+                  labelText: 'New Password',
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a new password';
+                  }
+                  if (value.length < 8) {
+                    return 'Password must be at least 8 characters';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: confirmPasswordController,
+                decoration: const InputDecoration(
+                  labelText: 'Confirm New Password',
+                  border: OutlineInputBorder(),
+                ),
+                obscureText: true,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please confirm your new password';
+                  }
+                  if (value != newPasswordController.text) {
+                    return 'Passwords do not match';
+                  }
+                  return null;
+                },
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              currentPasswordController.dispose();
+              newPasswordController.dispose();
+              confirmPasswordController.dispose();
+              Navigator.pop(context);
+            },
+            child: const Text('Cancel'),
+          ),
+          Consumer<AuthProvider>(
+            builder: (context, authProvider, child) {
+              return TextButton(
+                onPressed: authProvider.isLoading
+                    ? null
+                    : () async {
+                        if (formKey.currentState!.validate()) {
+                          final success = await authProvider.changePassword(
+                            currentPasswordController.text,
+                            newPasswordController.text,
+                            confirmPasswordController.text,
+                          );
+
+                          if (context.mounted) {
+                            if (success) {
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Password changed successfully!'),
+                                  backgroundColor: Color(0xFF22C55E),
+                                ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(authProvider.errorMessage ?? 'Password change failed'),
+                                  backgroundColor: const Color(0xFFEF4444),
+                                ),
+                              );
+                            }
+                          }
+
+                          currentPasswordController.dispose();
+                          newPasswordController.dispose();
+                          confirmPasswordController.dispose();
+                        }
+                      },
+                child: authProvider.isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text('Change Password'),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showLogoutAllDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Logout All Devices'),
+        content: const Text(
+          'This will log you out from all devices and revoke all active tokens. You will need to sign in again on all devices.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          Consumer<AuthProvider>(
+            builder: (context, authProvider, child) {
+              return TextButton(
+                onPressed: authProvider.isLoading
+                    ? null
+                    : () async {
+                        await authProvider.logoutAll();
+                        if (context.mounted) {
+                          Navigator.popUntil(context, (route) => route.isFirst);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Logged out from all devices'),
+                              backgroundColor: Color(0xFF22C55E),
+                            ),
+                          );
+                        }
+                      },
+                child: authProvider.isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text(
+                        'Logout All',
+                        style: TextStyle(color: Colors.red),
+                      ),
+              );
+            },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteAccountDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Account'),
+        content: const Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'This action cannot be undone!',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.red,
+              ),
+            ),
+            SizedBox(height: 16),
+            Text(
+              'Deleting your account will:',
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            Text('• Permanently delete your profile'),
+            Text('• Remove all your data'),
+            Text('• Cancel any active subscriptions'),
+            Text('• Log you out from all devices'),
+            SizedBox(height: 16),
+            Text('Are you sure you want to continue?'),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          Consumer<AuthProvider>(
+            builder: (context, authProvider, child) {
+              return TextButton(
+                onPressed: authProvider.isLoading
+                    ? null
+                    : () async {
+                        final success = await authProvider.deleteAccount();
+                        if (context.mounted) {
+                          if (success) {
+                            Navigator.popUntil(context, (route) => route.isFirst);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Account deleted successfully'),
+                                backgroundColor: Color(0xFF22C55E),
+                              ),
+                            );
+                          } else {
+                            Navigator.pop(context);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(authProvider.errorMessage ?? 'Account deletion failed'),
+                                backgroundColor: const Color(0xFFEF4444),
+                              ),
+                            );
+                          }
+                        }
+                      },
+                child: authProvider.isLoading
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Text(
+                        'Delete Account',
+                        style: TextStyle(color: Colors.red),
+                      ),
+              );
+            },
           ),
         ],
       ),
