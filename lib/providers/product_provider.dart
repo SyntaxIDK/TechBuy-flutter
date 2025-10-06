@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:connectivity_plus/connectivity_plus.dart';
 import '../models/product.dart' as models;
 import '../services/api_service.dart';
+import '../utils/image_helper.dart';
 
 class ProductProvider with ChangeNotifier {
   List<models.Category> _categories = [];
@@ -18,10 +19,6 @@ class ProductProvider with ChangeNotifier {
   // GitHub raw URL for your hosted online_products.json
   static const String _onlineDataUrl =
       'https://raw.githubusercontent.com/SyntaxIDK/TechBuy-flutter/main/assets/data/online_products.json';
-
-  // Alternative demo URL (kept for reference)
-  static const String _demoGitHubUrl =
-      'https://raw.githubusercontent.com/flutter/samples/main/web/samples_index.json';
 
   List<models.Category> get categories => _categories;
   List<models.Product> get favorites => _favorites;
@@ -371,16 +368,11 @@ class ProductProvider with ChangeNotifier {
 
       debugPrint('Laravel API health check passed, fetching data...');
 
-      // Fetch categories and products from Laravel API
-      final categoriesData = await ApiService.fetchCategories();
-      debugPrint('Fetched ${categoriesData.length} categories from Laravel API');
-
-      final productsData = await ApiService.fetchProducts(perPage: 50); // Get more products
+      // Fetch products from Laravel API
+      final productsData = await ApiService.fetchProducts(perPage: 100);
       debugPrint('Fetched products data: ${productsData['data']?.length ?? 0} products');
 
       List<models.Category> apiCategories = [];
-
-      // Process categories from Laravel API
       Map<String, List<models.Product>> categoryProducts = {};
 
       // Convert Laravel products to our app's format
@@ -388,6 +380,7 @@ class ProductProvider with ChangeNotifier {
         for (var productJson in productsData['data']) {
           try {
             final product = _convertLaravelProductToAppProduct(productJson);
+            // Get category slug from the product's category object
             final categorySlug = productJson['category']?['slug'] ?? 'uncategorized';
 
             if (!categoryProducts.containsKey(categorySlug)) {
@@ -405,28 +398,62 @@ class ProductProvider with ChangeNotifier {
       }
 
       debugPrint('Processed ${categoryProducts.length} product categories');
+      debugPrint('Category-Product mapping: ${categoryProducts.keys.toList()}');
 
-      // Create categories with their products
-      for (var categoryJson in categoriesData) {
-        final categorySlug = categoryJson['slug'];
-        final categoryName = categoryJson['name'];
-        final products = categoryProducts[categorySlug] ?? [];
+      // Try to fetch categories, but if it fails, create them from products
+      try {
+        final categoriesData = await ApiService.fetchCategories();
+        debugPrint('Fetched ${categoriesData.length} categories from Laravel API');
 
-        // Include categories even if they have no products for debugging
-        apiCategories.add(models.Category(
-          id: 'api-${categoryJson['id']}',
-          name: 'API $categoryName',
-          icon: _getCategoryIcon(categorySlug),
-          products: products,
-        ));
+        if (categoriesData.isNotEmpty) {
+          // Create categories with their products using API data
+          for (var categoryJson in categoriesData) {
+            final categorySlug = categoryJson['slug'];
+            final categoryName = categoryJson['name'];
+            final products = categoryProducts[categorySlug] ?? [];
 
-        debugPrint('Created category: $categoryName with ${products.length} products');
+            apiCategories.add(models.Category(
+              id: categorySlug,
+              name: categoryName,
+              icon: _getCategoryIcon(categorySlug),
+              products: products,
+            ));
+
+            debugPrint('Created category: $categoryName with ${products.length} products');
+          }
+        } else {
+          throw Exception('Categories endpoint returned empty data');
+        }
+      } catch (e) {
+        debugPrint('Categories endpoint failed: $e');
+        debugPrint('Creating categories from products instead...');
+
+        // Create categories directly from the products since categories endpoint failed
+        for (var entry in categoryProducts.entries) {
+          final slug = entry.key;
+          final products = entry.value;
+
+          // Get category info from the first product in this category
+          final categoryName = products.isNotEmpty && products.first.id.contains('api-')
+              ? _getCategoryNameFromSlug(slug)
+              : slug;
+
+          apiCategories.add(models.Category(
+            id: slug,
+            name: categoryName,
+            icon: _getCategoryIcon(slug),
+            products: products,
+          ));
+
+          debugPrint('Created category from products: $categoryName with ${products.length} products');
+        }
       }
 
       _categories = apiCategories;
       _isLoading = false;
       notifyListeners();
       debugPrint('Successfully loaded ${_categories.length} categories from Laravel API');
+      debugPrint('Total products across all categories: ${_categories.expand((c) => c.products).length}');
 
     } catch (e) {
       debugPrint('Error loading API products: $e');
@@ -449,15 +476,26 @@ class ProductProvider with ChangeNotifier {
       images = List<String>.from(laravelProduct['images']);
     }
 
-    // Use first image or placeholder
+    // Use Azure image URL with proper path handling
     String imageUrl = images.isNotEmpty
-        ? images.first
+        ? ImageHelper.getProductImageUrl(images.first)
         : 'assets/images/placeholder.jpg';
 
-    // Convert specifications from Laravel format
+    // Convert specifications from Laravel format - handle both array and map
     Map<String, dynamic> specs = {};
     if (laravelProduct['specifications'] != null) {
-      specs = Map<String, dynamic>.from(laravelProduct['specifications']);
+      final specificationsData = laravelProduct['specifications'];
+      if (specificationsData is Map<String, dynamic>) {
+        specs = Map<String, dynamic>.from(specificationsData);
+      } else if (specificationsData is List && specificationsData.isNotEmpty) {
+        // If it's a list, try to convert it to a map
+        for (var item in specificationsData) {
+          if (item is Map<String, dynamic>) {
+            specs.addAll(item);
+          }
+        }
+      }
+      // If it's an empty array or null, specs remains empty
     }
 
     // Add additional specs from Laravel product data
@@ -523,6 +561,36 @@ class ProductProvider with ChangeNotifier {
       return await ApiService.checkApiHealth();
     } catch (e) {
       return false;
+    }
+  }
+
+  /// Get category name from slug (for uncategorized products)
+  String _getCategoryNameFromSlug(String slug) {
+    switch (slug.toLowerCase()) {
+      case 'iphones':
+        return 'iPhones';
+      case 'macbooks':
+        return 'MacBooks';
+      case 'android-phones':
+        return 'Android Phones';
+      case 'laptops':
+        return 'Laptops';
+      case 'tablets':
+        return 'Tablets';
+      case 'accessories':
+        return 'Accessories';
+      case 'monitors':
+        return 'Monitors';
+      case 'gaming':
+        return 'Gaming';
+      default:
+        // Convert slug to a more readable format
+        return slug
+            .replaceAll('-', ' ')
+            .replaceAll('_', ' ')
+            .split(' ')
+            .map((word) => word.isNotEmpty ? '${word[0].toUpperCase()}${word.substring(1)}' : '')
+            .join(' ');
     }
   }
 }

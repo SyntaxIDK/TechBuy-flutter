@@ -19,23 +19,23 @@ class AuthProvider with ChangeNotifier {
   Future<void> initializeAuth() async {
     _setLoading(true);
     try {
-      final isLoggedIn = await _authService.isLoggedIn();
+      final isLoggedIn = await _authService.isAuthenticated();
       if (isLoggedIn) {
-        // Verify token is still valid
-        final isValid = await _authService.verifyToken();
-        if (isValid) {
-          final user = await _authService.getStoredUser();
-          if (user != null) {
-            _currentUser = user;
-            _isAuthenticated = true;
-          }
-        } else {
+        // Try to get the user profile to verify token is still valid
+        try {
+          final user = await _authService.getProfile();
+          _currentUser = user;
+          _isAuthenticated = true;
+        } catch (e) {
           // Token is invalid, clear stored data
           await _authService.logout();
+          _isAuthenticated = false;
+          _currentUser = null;
         }
       }
     } catch (e) {
       _setError('Failed to initialize authentication');
+      debugPrint('Auth initialization error: $e');
     } finally {
       _setLoading(false);
     }
@@ -95,14 +95,14 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> updateProfile(String name, String email) async {
+  Future<bool> updateProfile(String name, {String? phone}) async {
     _setLoading(true);
     _clearError();
 
     try {
       final updatedUser = await _authService.updateProfile(
         name: name,
-        email: email,
+        phone: phone,
       );
 
       _currentUser = updatedUser;
@@ -125,7 +125,8 @@ class AuthProvider with ChangeNotifier {
     _clearError();
 
     try {
-      await _authService.changePassword(
+      await _authService.updateProfile(
+        name: _currentUser?.name ?? '',
         currentPassword: currentPassword,
         newPassword: newPassword,
         newPasswordConfirmation: newPasswordConfirmation,
@@ -150,7 +151,7 @@ class AuthProvider with ChangeNotifier {
       await _authService.logout();
     } catch (e) {
       // Continue with logout even if API call fails
-      print('Logout error: $e');
+      debugPrint('Logout error: $e');
     } finally {
       _isAuthenticated = false;
       _currentUser = null;
@@ -159,39 +160,42 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  // Note: Azure API doesn't have logoutAll endpoint, so we'll use regular logout
   Future<void> logoutAll() async {
-    _setLoading(true);
-    try {
-      await _authService.logoutAll();
-    } catch (e) {
-      print('Logout all error: $e');
-    } finally {
-      _isAuthenticated = false;
-      _currentUser = null;
-      _clearError();
-      _setLoading(false);
-    }
+    await logout();
   }
 
+  // Note: Azure API doesn't have deleteAccount endpoint, so we'll simulate it
   Future<bool> deleteAccount() async {
     _setLoading(true);
     _clearError();
 
     try {
-      await _authService.deleteAccount();
-      _isAuthenticated = false;
-      _currentUser = null;
-      notifyListeners();
-      return true;
+      // For now, we'll just logout since the API doesn't support account deletion
+      // You can implement this on the Laravel side if needed
+      await logout();
+      _setError('Account deletion is not currently supported. Please contact support.');
+      return false;
     } catch (e) {
-      if (e is ApiError) {
-        _setError(e.displayMessage);
-      } else {
-        _setError('Account deletion failed. Please try again.');
-      }
+      _setError('Account deletion failed. Please try again.');
       return false;
     } finally {
       _setLoading(false);
+    }
+  }
+
+  // Helper method to refresh user data
+  Future<void> refreshUser() async {
+    if (!_isAuthenticated) return;
+
+    try {
+      final user = await _authService.getProfile();
+      _currentUser = user;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Failed to refresh user data: $e');
+      // If refresh fails, user might be logged out
+      await logout();
     }
   }
 
@@ -210,6 +214,7 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  // Public method to clear errors
   void clearError() {
     _clearError();
   }

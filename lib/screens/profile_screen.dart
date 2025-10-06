@@ -573,7 +573,6 @@ class ProfileScreen extends StatelessWidget {
                         if (formKey.currentState!.validate()) {
                           final success = await authProvider.updateProfile(
                             nameController.text.trim(),
-                            emailController.text.trim(),
                           );
 
                           if (context.mounted) {

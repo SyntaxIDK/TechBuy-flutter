@@ -1,15 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter/foundation.dart';
+import '../config/api_config.dart';
 
 class ApiService {
-  // Change this to your Laravel app URL
-  static const String baseUrl = 'http://127.0.0.1:8000/api';
-
-  // Alternative URLs for different environments:
-  // For Android emulator, use: http://10.0.2.2:8000/api
-  // For iOS simulator, use: http://localhost:8000/api or http://127.0.0.1:8000/api
-  // For physical device, use your computer's IP: http://192.168.x.x:8000/api
+  // Using Azure production URL instead of localhost
+  static String get baseUrl => ApiConfig.apiBaseUrl;
 
   static Map<String, String> get headers => {
     'Accept': 'application/json',
@@ -167,18 +163,18 @@ class ApiService {
       final response = await http.get(
         Uri.parse('$baseUrl/categories'),
         headers: headers,
-      ).timeout(const Duration(seconds: 5));
+      ).timeout(const Duration(seconds: 10)); // Increased timeout for Azure
 
       debugPrint('Health check response: ${response.statusCode}');
       if (response.statusCode == 200) {
-        debugPrint('Laravel API is healthy');
+        debugPrint('Azure Laravel API is healthy');
         return true;
       } else {
-        debugPrint('Laravel API returned status: ${response.statusCode}');
+        debugPrint('Azure Laravel API returned status: ${response.statusCode}');
         return false;
       }
     } catch (e) {
-      debugPrint('Laravel API health check failed: $e');
+      debugPrint('Azure Laravel API health check failed: $e');
       return false;
     }
   }

@@ -1,25 +1,21 @@
 import 'dart:convert';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter/foundation.dart';
 import '../models/auth_models.dart';
-import '../constants/api_constants.dart';
+import '../config/api_config.dart';
+import '../services/http_service.dart';
 
 class AuthService {
   static final AuthService _instance = AuthService._internal();
   factory AuthService() => _instance;
   AuthService._internal();
 
-  // Get the appropriate base URL based on platform
-  String get _baseUrl {
-    if (kIsWeb) {
-      // For web platform, use localhost
-      return 'http://127.0.0.1:8000/api';
-    } else {
-      // For mobile platforms, use the mobile-specific URLs
-      return ApiConstants.baseUrl;
-    }
-  }
+  final HttpService _httpService = HttpService();
+  static const String _tokenKey = 'auth_token';
+  static const String _userKey = 'user_data';
+
+  // Using Azure production URL instead of localhost
+  String get _baseUrl => ApiConfig.apiBaseUrl;
 
   // Register a new user
   Future<AuthResponse> register({
@@ -29,16 +25,12 @@ class AuthService {
     required String passwordConfirmation,
   }) async {
     try {
-      final response = await http.post(
-        Uri.parse('${_baseUrl}/auth/register'),
-        headers: ApiConstants.headers,
-        body: jsonEncode({
-          'name': name,
-          'email': email,
-          'password': password,
-          'password_confirmation': passwordConfirmation,
-        }),
-      );
+      final response = await _httpService.post(ApiConfig.register, {
+        'name': name,
+        'email': email,
+        'password': password,
+        'password_confirmation': passwordConfirmation,
+      });
 
       final data = jsonDecode(response.body);
 
@@ -61,14 +53,10 @@ class AuthService {
     required String password,
   }) async {
     try {
-      final response = await http.post(
-        Uri.parse('${_baseUrl}/auth/login'),
-        headers: ApiConstants.headers,
-        body: jsonEncode({
-          'email': email,
-          'password': password,
-        }),
-      );
+      final response = await _httpService.post(ApiConfig.login, {
+        'email': email,
+        'password': password,
+      });
 
       final data = jsonDecode(response.body);
 
@@ -93,30 +81,29 @@ class AuthService {
         throw ApiError(message: 'No authentication token found');
       }
 
-      final response = await http.get(
-        Uri.parse('${_baseUrl}/auth/profile'),
-        headers: ApiConstants.authHeaders(token),
-      );
+      _httpService.setToken(token);
+      final response = await _httpService.get(ApiConfig.profile);
 
       final data = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        final user = User.fromJson(data['user']);
-        await _saveUserData(user);
-        return user;
+        return User.fromJson(data['data']);
       } else {
         throw ApiError.fromJson(data);
       }
     } catch (e) {
       if (e is ApiError) rethrow;
-      throw ApiError(message: 'Network error: ${e.toString()}');
+      throw ApiError(message: 'Error fetching profile: ${e.toString()}');
     }
   }
 
   // Update user profile
   Future<User> updateProfile({
     required String name,
-    required String email,
+    String? phone,
+    String? currentPassword,
+    String? newPassword,
+    String? newPasswordConfirmation,
   }) async {
     try {
       final token = await getStoredToken();
@@ -124,173 +111,77 @@ class AuthService {
         throw ApiError(message: 'No authentication token found');
       }
 
-      final response = await http.put(
-        Uri.parse('${_baseUrl}/auth/profile'),
-        headers: ApiConstants.authHeaders(token),
-        body: jsonEncode({
-          'name': name,
-          'email': email,
-        }),
-      );
+      _httpService.setToken(token);
 
-      final data = jsonDecode(response.body);
+      final data = <String, dynamic>{
+        'name': name,
+        if (phone != null) 'phone': phone,
+        if (currentPassword != null) 'current_password': currentPassword,
+        if (newPassword != null) 'new_password': newPassword,
+        if (newPasswordConfirmation != null) 'new_password_confirmation': newPasswordConfirmation,
+      };
+
+      final response = await _httpService.put(ApiConfig.profile, data);
+      final responseData = jsonDecode(response.body);
 
       if (response.statusCode == 200) {
-        final user = User.fromJson(data['user']);
+        final user = User.fromJson(responseData['data']);
         await _saveUserData(user);
         return user;
       } else {
-        throw ApiError.fromJson(data);
+        throw ApiError.fromJson(responseData);
       }
     } catch (e) {
       if (e is ApiError) rethrow;
-      throw ApiError(message: 'Network error: ${e.toString()}');
+      throw ApiError(message: 'Error updating profile: ${e.toString()}');
     }
   }
 
-  // Change password
-  Future<void> changePassword({
-    required String currentPassword,
-    required String newPassword,
-    required String newPasswordConfirmation,
-  }) async {
-    try {
-      final token = await getStoredToken();
-      if (token == null) {
-        throw ApiError(message: 'No authentication token found');
-      }
-
-      final response = await http.put(
-        Uri.parse('${_baseUrl}/auth/change-password'),
-        headers: ApiConstants.authHeaders(token),
-        body: jsonEncode({
-          'current_password': currentPassword,
-          'new_password': newPassword,
-          'new_password_confirmation': newPasswordConfirmation,
-        }),
-      );
-
-      final data = jsonDecode(response.body);
-
-      if (response.statusCode != 200) {
-        throw ApiError.fromJson(data);
-      }
-    } catch (e) {
-      if (e is ApiError) rethrow;
-      throw ApiError(message: 'Network error: ${e.toString()}');
-    }
-  }
-
-  // Logout current device
+  // Logout user
   Future<void> logout() async {
     try {
       final token = await getStoredToken();
       if (token != null) {
-        await http.post(
-          Uri.parse('${_baseUrl}/auth/logout'),
-          headers: ApiConstants.authHeaders(token),
-        );
+        _httpService.setToken(token);
+        await _httpService.post(ApiConfig.logout, {});
       }
     } catch (e) {
-      // Even if the API call fails, we should still clear local data
-      print('Logout API call failed: $e');
+      debugPrint('Logout API call failed: $e');
+      // Continue with local logout even if API call fails
     } finally {
       await _clearAuthData();
     }
   }
 
-  // Logout all devices
-  Future<void> logoutAll() async {
-    try {
-      final token = await getStoredToken();
-      if (token != null) {
-        await http.post(
-          Uri.parse('${_baseUrl}/auth/logout-all'),
-          headers: ApiConstants.authHeaders(token),
-        );
-      }
-    } catch (e) {
-      print('Logout all API call failed: $e');
-    } finally {
-      await _clearAuthData();
-    }
+  // Check if user is authenticated
+  Future<bool> isAuthenticated() async {
+    final token = await getStoredToken();
+    return token != null && token.isNotEmpty;
   }
 
-  // Verify token
-  Future<bool> verifyToken() async {
-    try {
-      final token = await getStoredToken();
-      if (token == null) return false;
-
-      final response = await http.get(
-        Uri.parse('${_baseUrl}/auth/verify-token'),
-        headers: ApiConstants.authHeaders(token),
-      );
-
-      return response.statusCode == 200;
-    } catch (e) {
-      return false;
-    }
-  }
-
-  // Delete account
-  Future<void> deleteAccount() async {
-    try {
-      final token = await getStoredToken();
-      if (token == null) {
-        throw ApiError(message: 'No authentication token found');
-      }
-
-      final response = await http.delete(
-        Uri.parse('${_baseUrl}/auth/delete-account'),
-        headers: ApiConstants.authHeaders(token),
-      );
-
-      final data = jsonDecode(response.body);
-
-      if (response.statusCode == 200) {
-        await _clearAuthData();
-      } else {
-        throw ApiError.fromJson(data);
-      }
-    } catch (e) {
-      if (e is ApiError) rethrow;
-      throw ApiError(message: 'Network error: ${e.toString()}');
-    }
-  }
-
-  // Get stored authentication token
+  // Get stored token
   Future<String?> getStoredToken() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      return prefs.getString(StorageKeys.authToken);
+      return prefs.getString(_tokenKey);
     } catch (e) {
+      debugPrint('Error getting stored token: $e');
       return null;
     }
   }
 
-  // Get stored user data
+  // Get stored user
   Future<User?> getStoredUser() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      final userJson = prefs.getString(StorageKeys.userData);
+      final userJson = prefs.getString(_userKey);
       if (userJson != null) {
         return User.fromJson(jsonDecode(userJson));
       }
       return null;
     } catch (e) {
+      debugPrint('Error getting stored user: $e');
       return null;
-    }
-  }
-
-  // Check if user is logged in
-  Future<bool> isLoggedIn() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final token = prefs.getString(StorageKeys.authToken);
-      return token != null && token.isNotEmpty;
-    } catch (e) {
-      return false;
     }
   }
 
@@ -298,21 +189,21 @@ class AuthService {
   Future<void> _saveAuthData(String token, User user) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(StorageKeys.authToken, token);
-      await prefs.setString(StorageKeys.userData, jsonEncode(user.toJson()));
-      await prefs.setBool(StorageKeys.isLoggedIn, true);
+      await prefs.setString(_tokenKey, token);
+      await prefs.setString(_userKey, jsonEncode(user.toJson()));
+      _httpService.setToken(token);
     } catch (e) {
-      print('Error saving auth data: $e');
+      debugPrint('Error saving auth data: $e');
     }
   }
 
-  // Save user data
+  // Save user data only
   Future<void> _saveUserData(User user) async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(StorageKeys.userData, jsonEncode(user.toJson()));
+      await prefs.setString(_userKey, jsonEncode(user.toJson()));
     } catch (e) {
-      print('Error saving user data: $e');
+      debugPrint('Error saving user data: $e');
     }
   }
 
@@ -320,11 +211,11 @@ class AuthService {
   Future<void> _clearAuthData() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(StorageKeys.authToken);
-      await prefs.remove(StorageKeys.userData);
-      await prefs.setBool(StorageKeys.isLoggedIn, false);
+      await prefs.remove(_tokenKey);
+      await prefs.remove(_userKey);
+      _httpService.clearToken();
     } catch (e) {
-      print('Error clearing auth data: $e');
+      debugPrint('Error clearing auth data: $e');
     }
   }
 }
