@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
 import '../models/product.dart';
 import 'product_detail_screen.dart';
+import 'checkout_screen.dart';
 
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
@@ -135,7 +136,12 @@ class CartScreen extends StatelessWidget {
                       width: double.infinity,
                       child: ElevatedButton(
                         onPressed: () {
-                          _showCheckoutDialog(context, cartProvider);
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const CheckoutScreen(),
+                            ),
+                          );
                         },
                         child: const Text('Proceed to Checkout'),
                       ),
@@ -146,60 +152,6 @@ class CartScreen extends StatelessWidget {
             ],
           );
         },
-      ),
-    );
-  }
-
-  void _showCheckoutDialog(BuildContext context, CartProvider cartProvider) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Checkout'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('This is a demo app. In a real implementation, this would connect to a payment gateway.'),
-            const SizedBox(height: 16),
-            Text(
-              'Order Summary:',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 8),
-            ...cartProvider.items.map((item) => Text(
-              '${item.quantity}x ${item.product.name} (${item.selectedColor})',
-              style: Theme.of(context).textTheme.bodyMedium,
-            )),
-            const SizedBox(height: 8),
-            Text(
-              'Total: \$${cartProvider.totalAmount.toStringAsFixed(2)}',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              cartProvider.clearCart();
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Order placed successfully! (Demo)'),
-                  backgroundColor: Colors.green,
-                ),
-              );
-            },
-            child: const Text('Place Order'),
-          ),
-        ],
       ),
     );
   }
